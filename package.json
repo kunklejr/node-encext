@@ -1,6 +1,6 @@
 {
   "name": "encext",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Jeff Kunkle",
   "description": "require.extensions handler for requiring encrypted files (e.g. .js, .json)",
   "scripts": {
