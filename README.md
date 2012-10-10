@@ -1,6 +1,7 @@
 # encext
 
-Extension handler for loading encrypted JavaScript files.
+require.extensions handler for requiring encrypted files (e.g. .js,
+.json).
 
 ## Installation
 
@@ -8,8 +9,44 @@ Extension handler for loading encrypted JavaScript files.
 
 ## Usage
 
+First, we encrypt some files with the included script.
+
+    $ encext -r lib/
+    Password:
+
+Once the encryption password is entered, the above command will
+recursively encrypt all `.js` and `.json` files in the `lib/` directory
+and it's subdirectories. Run `encext --help` for details on the
+available options.
+
+Now that we have some encrypted source files, we need to delete the
+originals prior to deployment. You will need at least one unencrypted
+source file to bootstrap the process. It will include code something
+like this
+
+```javascript
+require('encext').init('aes-128-cbc', 'password');
+```
+
+That one line of code will setup the encrypted extension loaders
+and initialize the cipher with the given algorithm and password. This
+obviously has to match the one you used when encrypting the files with
+the `encext` command line tool.
 
 ## API
+
+### init(algorithm, password)
+
+Initializes the `encext` module with the given encryption algorithm and
+derives the encryption key from the given password.
+
+__Arguments__
+
+* algorithm - the encryption algorithm to use. It is dependent on the
+available algorithms supported by the version of OpenSSL on the platform.
+Examples are 'aes-128-cbc', 'aes192', etc. On recent releases,
+`openssl list-cipher-algorithms` will display the available ciphers.
+* password - the password used to derive the encryption/decryption key
 
 ## License
 
