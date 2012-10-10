@@ -8,8 +8,10 @@ var encext = require('./index');
 var defaultAlgorithm = 'aes-128-cbc';
 
 program
-  .option('-a, --algorithm <alg>', 'Encryption algorithm, defaults to ' + defaultAlgorithm)
-  .option('-r, --recursive', 'Recursively encrypt supported files').parse(process.argv);
+  .command('encext')
+  .usage('[options] <file ...>')
+  .option('-a, --algorithm <alg>', 'encryption algorithm, defaults to ' + defaultAlgorithm)
+  .option('-r, --recursive', 'recursively encrypt supported files').parse(process.argv);
 
 var algorithm = program.algorithm || defaultAlgorithm;
 var recursive = program.recursive || false;
