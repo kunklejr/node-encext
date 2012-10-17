@@ -2,24 +2,46 @@
 
 var path = require('path');
 var fs = require('fs');
-var program = require('commander');
+var optimist = require('optimist');
+var prompt = require('prompt');
 var efs = require('efs');
 var encext = require('./index');
 var defaultAlgorithm = 'aes-128-cbc';
 
-program
-  .command('encext')
-  .usage('[options] <file ...>')
-  .option('-a, --algorithm <alg>', 'encryption algorithm, defaults to ' + defaultAlgorithm)
-  .option('-r, --recursive', 'recursively encrypt supported files').parse(process.argv);
+var argv = optimist
+  .usage('usage: encext [-r] [-a algorithm] [file ...]')
+  .describe('r', 'recursively encrypt supported files')
+  .boolean('r')
+  .alias('r', 'recursive')
+  .default('r', false)
+  .describe('a', 'encryption algorithm')
+  .string('a')
+  .alias('a', 'algorithm')
+  .default('a', defaultAlgorithm)
+  .argv;
 
-var algorithm = program.algorithm || defaultAlgorithm;
-var recursive = program.recursive || false;
+if (argv.help) {
+  optimist.showHelp();
+}
 
-program.password('Password: ', function(password) {
-  process.stdin.destroy();
-  efs = efs.init(algorithm, password);
-  program.args.forEach(processPath);
+var pwdPrompt = {
+  name: 'password',
+  description: 'Please enter the encryption password',
+  required: true,
+  hidden: true
+};
+
+prompt.message = 'encext';
+prompt.colors = false;
+prompt.start();
+prompt.get(pwdPrompt, function(err, result) {
+  if (err) {
+    console.error('[ERROR]', err);
+    process.exit(1);
+  }
+
+  efs = efs.init(argv.algorithm, result.password);
+  argv._.forEach(processPath);
 });
 
 function processPath(fspath) {
@@ -28,7 +50,7 @@ function processPath(fspath) {
   function onStat(err, stats) {
     if (err) { return exit(err) }
 
-    if (stats.isDirectory() && recursive) {
+    if (stats.isDirectory() && argv.recursive) {
       fs.readdir(fspath, onReaddir);
     } else if (stats.isFile() && encext.isSupported(fspath)) {
       encrypt(fspath);
